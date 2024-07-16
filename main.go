@@ -39,8 +39,8 @@ func main(){
 	server := &http.Server{Addr: "localhost:8080", Handler: serveMux}
 	handler := http.StripPrefix("/app", http.FileServer(http.Dir(".")))
 	serveMux.Handle("/app/*", apiCfg.middlewareMetricsInc(handler))
-	serveMux.HandleFunc("GET /healthz", handleStatus)
-	serveMux.HandleFunc("GET /metrics", apiCfg.handleMetrics)
-	serveMux.HandleFunc("/reset", apiCfg.handleReset)
+	serveMux.HandleFunc("GET /api/healthz", handleStatus)
+	serveMux.HandleFunc("GET /api/metrics", apiCfg.handleMetrics)
+	serveMux.HandleFunc("/api/reset", apiCfg.handleReset)
 	server.ListenAndServe()
 }
