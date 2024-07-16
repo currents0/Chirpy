@@ -2,7 +2,7 @@ package main
 
 import (
 	"net/http"
-	"strconv"
+	"fmt"
 )
 
 type apiConfig struct {
@@ -17,8 +17,16 @@ func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
 }
 
 func (cfg *apiConfig) handleMetrics(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
-	w.Write([]byte("Hits: " + strconv.Itoa(cfg.fileserverHits)))
+	w.Header().Add("Content-Type", "text/html; charset=utf-8")
+	w.Write([]byte(fmt.Sprintf(`
+<html>
+
+<body>
+	<h1>Welcome, Chirpy Admin</h1>
+	<p>Chirpy has been visited %d times!</p>
+</body>
+
+</html>`, cfg.fileserverHits)))
 }
 
 func (cfg *apiConfig) handleReset(w http.ResponseWriter, r *http.Request) {
@@ -40,7 +48,7 @@ func main(){
 	handler := http.StripPrefix("/app", http.FileServer(http.Dir(".")))
 	serveMux.Handle("/app/*", apiCfg.middlewareMetricsInc(handler))
 	serveMux.HandleFunc("GET /api/healthz", handleStatus)
-	serveMux.HandleFunc("GET /api/metrics", apiCfg.handleMetrics)
+	serveMux.HandleFunc("GET /admin/metrics", apiCfg.handleMetrics)
 	serveMux.HandleFunc("/api/reset", apiCfg.handleReset)
 	server.ListenAndServe()
 }
